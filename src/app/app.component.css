@@ -1,0 +1,7 @@
+.linha-calculada > td {
+    color: red;
+}
+
+.linha-calculada > td > input[type='number'] {
+    color: red;
+}

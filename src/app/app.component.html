@@ -1,0 +1,124 @@
+<!-- Modal de Adição de Colunas -->
+<div bsModal #addColunaModal="bs-modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+
+            <!-- Header do Modal -->
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">Adicionar Métrica</h4>
+                <button type="button" class="close pull-right" aria-label="Close" (click)="exibirModalAdicionarColuna(false)">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- Corpo do Modal -->
+            <div class="modal-body">
+                <form>
+
+                    <!-- Nome da Métrica -->
+                    <div class="form-group">
+                        <label for="metricaAtual">Nome da Métrica</label>
+                        <input type="text" [(ngModel)]="novaColuna.nome" name="metricaAtual" required class="form-control" placeholder="Métrica">
+                    </div>
+
+                    <!-- Unidade -->
+                    <div class="form-group">
+                        <label for="coluna-tipo">Unidade da Métrica</label>
+                        <select class="form-control" required [(ngModel)]="novaColuna.tipo" name="tipoAtual">
+                            <option value="Horas">Tempo</option>
+                            <option value="Valor">Valor</option>
+                        </select>
+                    </div>
+
+                    <!-- Previsão ou Realidade? -->
+                    <div class="form-group">
+                        <label for="prevOuReal">Tipo da Métrica</label>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" [(ngModel)]="novaColuna.previsao" name="prevOuReal" [value]="true" checked>
+                                Previsão
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" [(ngModel)]="novaColuna.previsao" name="prevOuReal" [value]="false">
+                                Realidade
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" (click)="exibirModalAdicionarColuna(false)">Cancelar</button>
+                <button type="submit" class="btn btn-primary" (click)="adicionarColuna()">Adicionar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Corpo do Componente -->
+<div class="container" style="padding: 10px;">
+
+    <!-- Botões do Header -->
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="col-md-6">
+            <button class="btn btn-warning" (click)="exibirModalAdicionarColuna(true)">+ Métrica</button>
+            <button class="btn btn-primary" (click)="calcularValores()">Calcular Valores</button>
+        </div>
+        <div class="col-md-6 text-right">
+            <button class="btn btn-info" (click)="carregarDadosDemonstracao()">Carregar Demonstração</button>
+            <button class="btn btn-success" (click)="salvar()">Salvar</button>
+            <button class="btn btn-danger" (click)="limpar()">Limpar</button>
+        </div>
+    </div>
+
+    <!-- Tabela com os Dados -->
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered table-hover">
+
+                <!-- Header da Tabela -->
+                <tr>
+                    <th width="1%">Calculada</th>
+                    <th *ngFor="let coluna of colunas">
+                        <div *ngIf="coluna.tipo == 'pf';else colunaNormal">
+                            {{coluna.nome}}
+                        </div>
+                        <ng-template #colunaNormal>
+                            {{coluna.nome}} {{coluna.tipo}} ({{coluna.previsao ? 'Prev' : 'Real'}})
+                        </ng-template>
+                    </th>
+                </tr>
+
+                <!-- Campos com os Dados -->
+                <tr *ngFor="let linha of linhas" [class.linha-calculada]="linha.calculada">
+
+                    <!-- Coluna fixa com os checkboxes para informar se a linha é calculada ou não. -->
+                    <td>
+                        <input type="checkbox" class="form-control" class="checkbox" [(ngModel)]="linha.calculada" name="linha-calculada" />
+                    </td>
+
+                    <!-- Linhas com os dados. -->
+                    <td *ngFor="let coluna of colunas; let i = index; let colunaPf = first">
+                        <input *ngIf="!linha.calculada || colunaPf || !coluna.previsao; else display" class="form-control" type="number" [(ngModel)]="linha.valores[i]"
+                            (change)="valorMudou()" name="valor" />
+                        <ng-template #display>
+                            {{linha.valores[i]}}
+                        </ng-template>
+                    </td>
+                </tr>
+
+                <!-- Última linha da tabela, habilita o usuário a adicionar novas linhas -->
+                <tr>
+                    <td>
+                        <button type="button" class="btn btn-default btn-xs" (click)="adicionarLinha()">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </td>
+                    <td *ngFor="let coluna of colunas"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
